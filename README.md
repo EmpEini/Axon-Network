@@ -5,7 +5,5 @@ D. Fokina and I. Oseledets, and its application to the framework of differential
 
 
 
-Reference:
-
-Daria Fokina and Ivan Oseledets. “Growing axons: greedy learning of neural networks
+Reference: Daria Fokina and Ivan Oseledets. “Growing axons: greedy learning of neural networks
 with application to function approximation”. In: arXiv preprint arXiv:1910.12686 (2019).
