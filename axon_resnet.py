@@ -105,16 +105,16 @@ class axon_network():
             elif optim_options[1] == 'opt':
                 x_min = dual_annealing(self.func_opt, bounds,
                                        maxiter=250)
-        # elif optim_options[0] == 'one_plus_one':
-        #     optimizer = ng.optimizers.OnePlusOne(
-        #                           parametrization=self.Q.shape[1],
-        #                           budget=5000)
-        #     if optim_options[1] == 'classical':
-        #         x_min = optimizer.minimize(lambda x: self.func_classical(x))
-        #     elif optim_options[1] == 'author':
-        #         x_min = optimizer.minimize(lambda x: self.func_author(x))
-        #     elif optim_options[1] == 'opt':
-        #         x_min = optimizer.minimize(lambda x: self.func_opt(x))
+        elif optim_options[0] == 'one_plus_one':
+            optimizer = ng.optimizers.OnePlusOne(
+                                  parametrization=self.Q.shape[1],
+                                  budget=5000)
+            if optim_options[1] == 'classical':
+                x_min = optimizer.minimize(lambda x: self.func_classical(x))
+            elif optim_options[1] == 'author':
+                x_min = optimizer.minimize(lambda x: self.func_author(x))
+            elif optim_options[1] == 'opt':
+                x_min = optimizer.minimize(lambda x: self.func_opt(x))
         else:
             raise ValueError("This optimization method is not supported.")
         if optim_options[0] == 'one_plus_one':
