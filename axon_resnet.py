@@ -4,7 +4,7 @@ import scipy
 from scipy.optimize import basinhopping
 from scipy.optimize import differential_evolution
 from scipy.optimize import dual_annealing
-#import nevergrad as ng
+import nevergrad as ng
 
 
 '''The module for training and execution of the Axon algorithm.'''
