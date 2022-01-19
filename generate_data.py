@@ -144,10 +144,20 @@ class data_generator():
         # functions is the constant function f(x)=1
         # (In traditional networks this is the bias)
         self.dataset[-2,:] = np.ones((self.dataset_size,))
-
+        
+        # Compute the gradient of the solution function at the datapoints
+        self.gradient_f = self.compute_gradient(self.dataset[:-2,:])
+        
         # Compute the outputs of the initial basis functions from (x,1)
         # (If needed, specify your own initial basis functions here)
-        if self.inital_bases != 'identity':
+        if self.inital_bases == 'identity':
+            pass
+        elif self.inital_bases == 'periodic':
+            # first row is the sine function applied elementwise
+            self.dataset[0,:] = np.sin(self.dataset[0,:])
+            # second row is the cosine function applied elementwise
+            self.dataset[1,:] = np.cos(self.dataset[1,:])
+        else:
             raise ValueError("The 'initial_bases' have yet to be specified.")
 
         # The last row contains the function outputs
@@ -162,6 +172,7 @@ class data_generator():
             else:
                 raise ValueError("The 'noise' has to be either None or "
                                  "'Gaussian'")
+        
 
     def apply_function(self, data):
         if self.example_number == 0: # ODE (Chapter 4)
@@ -239,3 +250,68 @@ class data_generator():
             # solution: u(x,t) = exp(x-2t)
             data_f = np.exp(data[0]-2*data[1])
         return data_f
+    
+    
+    def compute_gradient(self, data):
+        if self.example_number == 0: # ODE (Chapter 4)
+            # No implementation so far
+            data_grad_f = data
+        elif self.example_number == 1: # Logistic differential equation
+            # Derivative: u'(x) = exp(x)/(exp(x)+1)^2
+            a = np.square(1 + np.exp(data))
+            data_grad_f = np.true_divide(np.exp(data), a)
+        elif self.example_number == 2: # Poisson equation in 1D
+            # Derivative: u'(x) = sin(pi*x)*cos(pi*x)/pi
+            a = np.pi*data
+            b = np.sin(a)
+            c = np.cos(a)
+            data_grad_f = np.true_divide(b*c, np.pi)
+        elif self.example_number == 3: # Legendre's differential equation
+            # Derivative: u'(x) = log((1-x)/(1+x)) + -2x/((1-x)(1+x))
+            a = 1-data
+            b = 1+data
+            c = np.log(np.true_divide(a, b))
+            d = np.true_divide(-2*data, a*b)
+            data_grad_f = c+d
+        elif self.example_number == 4: # Laplace equation in 2D
+            # Derivatives: du(x,y)/dx = cos(x)*(exp(y)-exp(-y))/(exp(pi)-exp(-pi))
+            #              du(x,y)/dy = sin(x)*(exp(y)+exp(-y))/(exp(pi)-exp(-pi))
+            a = np.exp(np.pi)-np.exp(-np.pi)
+            b = np.cos(data[0]) * (np.exp(data[1])-np.exp(-data[1]))
+            partial_x = np.true_divide(b, a)
+            c = np.sin(data[0]) * (np.exp(data[1])+np.exp(-data[1]))
+            partial_y = np.true_divide(c, a)
+            data_grad_f = np.vstack((partial_x,partial_y))
+        elif self.example_number == 5: # Helmholtz equation
+            # Derivatives: du(x,y)/dx = (sin(1+x)-sin(1-x))/sin(2)
+            #              du(x,y)/dy = (cos(1+x)-cos(1-x))/sin(2)
+            a = np.sin(2)
+            partial_x = np.true_divide(np.sin(1+data[0])-np.sin(1-data[0]), a)
+            partial_y = np.true_divide(np.sin(1+data[1])-np.sin(1-data[1]), a)
+            data_grad_f = np.vstack((partial_x,partial_y))
+        elif self.example_number == 6: # Heat equation in 1D
+            # Derivatives: du(x,t)/dx = cos(x)*exp(-t)
+            #              du(x,t)/dt = -sin(x)*exp(-t)
+            partial_x = np.cos(data[0]) * np.exp(-data[1])
+            partial_y = np.sin(data[0]) * np.exp(-data[1]) * (-1)
+            data_grad_f = np.vstack((partial_x,partial_y))
+        elif self.example_number == 7: # Inhom. heat equation in 1D
+            # Derivatives: du(x,t)/dx = ...
+            #              du(x,t)/dt = ...
+            
+            # No implementation so far
+            data_grad_f = data
+        elif self.example_number == 8: # Wave equation in 1D
+            # Derivatives: du(x,t)/dx = -sin(x)*cos(t)-2*sin(2x)*sin(2t)
+            #              du(x,t)/dt = -cos(x)*sin(t)+2*cos(2x)*cos(2t) + 2
+            partial_x = -np.sin(data[0])*np.cos(data[1]) - 2*np.sin(2*data[0])*np.sin(2*data[1])
+            partial_y = -np.cos(data[0])*np.sin(data[1]) + 2*np.cos(2*data[0])*np.cos(2*data[1]) + 2
+            data_grad_f = np.vstack((partial_x,partial_y))
+        elif self.example_number == 9: # Inhom. wave equation in 1D
+            # Derivatives: du(x,t)/dx = exp(x-2t)
+            #              du(x,t)/dt = -2*exp(x-2t)
+            partial_x = np.exp(data[0]-2*data[1])
+            partial_y = np.exp(data[0]-2*data[1]) * (-2)
+            data_grad_f = np.vstack((partial_x,partial_y))
+        return data_grad_f
+    
